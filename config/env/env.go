@@ -17,6 +17,8 @@ var (
 	DbPass        string
 	DbName        string
 	DbAutoMigrate bool
+	Debug         bool
+	SecretKey     string
 )
 
 func Load() {
@@ -30,5 +32,7 @@ func Load() {
 	DbUser = os.Getenv("DB_USER")
 	DbPass = os.Getenv("DB_PASSWORD")
 	DbAutoMigrate = os.Getenv("DB_AUTO_CREATE") == "true"
+	Debug = os.Getenv("DEBUG") == "true"
+	SecretKey = os.Getenv("SECRET_KEY")
 
 }

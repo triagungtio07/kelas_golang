@@ -3,30 +3,32 @@ package database
 import (
 	"fmt"
 
-	"github.com/triagungtio07/golang_fiber/config/env"
-	"github.com/triagungtio07/golang_fiber/models"
+	"github.com/triagungtio07/kelas_golang/config/env"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var (
-	GormDB *gorm.DB
+	Db *gorm.DB
 )
 
-func Load() {
+func Load() error {
+	var err error
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=true&loc=Local",
 		env.DbUser, env.DbPass, env.DbHost, env.DbPort, env.DbName)
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
-	if err != nil {
-		panic(err)
+	if env.Debug {
+		Db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+			SkipDefaultTransaction: true,
+			Logger:                 logger.Default.LogMode(logger.Info),
+		})
+	} else {
+		Db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+			SkipDefaultTransaction: true,
+			Logger:                 logger.Default.LogMode(logger.Silent),
+		})
 	}
 
-	GormDB = db
-
-	if env.DbAutoMigrate {
-		GormDB.AutoMigrate(
-			&models.Product{},
-		)
-	}
+	return err
 }

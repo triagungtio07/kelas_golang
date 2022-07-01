@@ -93,6 +93,23 @@ func Test_Book_Create_Error(t *testing.T) {
 	assert.Equal(t, err.Error(), fiber.ErrInternalServerError.Message)
 }
 
+func Test_Book_Create_Duplicate(t *testing.T) {
+	form := models.CreateBook{
+		Title:  "buku 1",
+		Author: "penulis 1",
+		Genre:  "genre 1",
+	}
+
+	repository := mocks.BookRepository{}
+	repository.On("Save", mock.Anything).Return(errors.New("Title already exists")).Once()
+
+	service := Book{Repository: &repository}
+	_, err := service.Create(form)
+
+	repository.AssertExpectations(t)
+	assert.Equal(t, err.Error(), fiber.ErrInternalServerError.Message)
+}
+
 func Test_Book_Create_Success(t *testing.T) {
 	form := models.CreateBook{
 		Title:  "buku 1",

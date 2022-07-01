@@ -1,6 +1,8 @@
 package services
 
 import (
+	"strings"
+
 	"github.com/gofiber/fiber"
 	"github.com/jinzhu/copier"
 	"github.com/triagungtio07/kelas_golang/models"
@@ -40,6 +42,12 @@ func (s Book) Create(Book models.CreateBook) (models.Book, error) {
 	copier.Copy(&model, &Book)
 	err := s.Repository.Save(&model)
 	if err != nil {
+		if strings.Contains(err.Error(), "Duplicate entry") {
+			return model, &fiber.Error{
+				Message: "Title already exists",
+				Code:    fiber.StatusBadRequest,
+			}
+		}
 		return model, &fiber.Error{
 			Message: fiber.ErrInternalServerError.Message,
 			Code:    fiber.ErrInternalServerError.Code,
